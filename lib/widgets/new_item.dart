@@ -1,4 +1,7 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shopping_list_app/data/categories.dart';
 import 'package:shopping_list_app/models/category.dart';
@@ -17,26 +20,45 @@ class _NewItemState extends ConsumerState<NewItem> {
   String _enteredName = "";
   int _enteredQuantity = 1;
   Category _selectedCategory = categories[Categories.vegetables]!;
-
-  void submitForm() {
-    if (_formKey.currentState!.validate()) {
-      _formKey.currentState!.save();
-      final isAdded = ref
-          .read(groceryItemsProvider.notifier)
-          .addGroceryItem(
-            GroceryItem(
+  bool _isSending = false;
+  void submitForm() async{
+    if (_formKey.currentState!.validate()){
+  setState(() {_formKey.currentState!.save();});
+      final item = GroceryItem(
               id: DateTime.now().microsecond.toString(),
               name: _enteredName,
               quantity: _enteredQuantity,
               category: _selectedCategory,
-            ),
-          );
-      if (isAdded) {
-        ScaffoldMessenger.of(context).clearSnackBars();
-        ScaffoldMessenger.of(context)
-            .showSnackBar(SnackBar(content: Text("Item added to the list")));
+      );
+      _isSending = true;
+      final url = Uri.https('test-app-d84e6-default-rtdb.asia-southeast1.firebasedatabase.app','shopping-list.json');
+     final response = await http.post(url,headers: {
+        'Content-Type':  'application/json',
+      },
+      body: json.encode({
+              'name': _enteredName,
+              'quantity': _enteredQuantity,
+              'category': _selectedCategory.name,
+      })
+      );
+
+      final Map<String,dynamic> resData = json.decode(response.body);
+
+      // final isAdded = ref
+      //     .read(groceryItemsProvider.notifier)
+      //     .addGroceryItem(
+      //       item
+      //     );
+      // if (isAdded) {
+      //   ScaffoldMessenger.of(context).clearSnackBars();
+      //   ScaffoldMessenger.of(context)
+      //       .showSnackBar(SnackBar(content: Text("Item added to the list")));
+      // }
+
+      if(!context.mounted){
+        return;
       }
-      Navigator.of(context).pop();
+      Navigator.of(context).pop(GroceryItem(id: resData['name'], name: _enteredName, quantity: _enteredQuantity, category: _selectedCategory));
     }
   }
 
@@ -124,15 +146,15 @@ class _NewItemState extends ConsumerState<NewItem> {
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
                   TextButton(
-                    onPressed: () {
+                    onPressed: _isSending? null : () {
                       _formKey.currentState!.reset();
                     },
                     child: Text("Reset"),
                   ),
                   SizedBox(width: 4),
                   ElevatedButton(
-                    onPressed: submitForm,
-                    child: Text("Add Item"),
+                    onPressed: _isSending ? null: submitForm,
+                    child: _isSending? const SizedBox(width: 16, child: CircularProgressIndicator(),) : Text("Add Item"),
                   ),
                 ],
               ),
