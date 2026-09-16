@@ -2,20 +2,19 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+
 import 'package:shopping_list_app/data/categories.dart';
 import 'package:shopping_list_app/models/category.dart';
 import 'package:shopping_list_app/models/grocery_item.dart';
-import 'package:shopping_list_app/providers/grocery_items_proivder.dart';
 
-class NewItem extends ConsumerStatefulWidget {
+class NewItem extends StatefulWidget {
   const NewItem({super.key});
 
   @override
-  ConsumerState<NewItem> createState() => _NewItemState();
+  State<NewItem> createState() => _NewItemState();
 }
 
-class _NewItemState extends ConsumerState<NewItem> {
+class _NewItemState extends State<NewItem> {
   final _formKey = GlobalKey<FormState>();
   String _enteredName = "";
   int _enteredQuantity = 1;

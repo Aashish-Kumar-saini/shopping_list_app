@@ -1,22 +1,21 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+
 import 'package:shopping_list_app/data/categories.dart';
 import 'package:shopping_list_app/data/dummy_items.dart';
 import 'package:shopping_list_app/models/grocery_item.dart';
-import 'package:shopping_list_app/providers/grocery_items_proivder.dart';
 import 'package:shopping_list_app/widgets/new_item.dart';
 import 'package:http/http.dart' as http;
 
-class GroceryList extends ConsumerStatefulWidget {
+class GroceryList extends StatefulWidget {
   const GroceryList({super.key});
 
   @override
-  ConsumerState<GroceryList> createState() => _GroceryListState();
+  State<GroceryList> createState() => _GroceryListState();
 }
 
-class _GroceryListState extends ConsumerState<GroceryList> {
+class _GroceryListState extends State<GroceryList> {
   bool _isloading = true;
   List<GroceryItem> groceryItems = [];
   String? _error;
